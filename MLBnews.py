@@ -73,7 +73,7 @@ trans = Translator()
 if st.button("翻訳"):
     with st.spinner("翻訳中・・・"):
         pipe = pipeline("summarization")
-        result = pipe(text, max_length=130, min_length=30)
+        result = pipe(text, max_length=200, min_length=50)
         text = result[0]["summary_text"]
         result = trans.translate(text, src='en', dest='ja')
         result.text
