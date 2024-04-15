@@ -62,20 +62,41 @@ if st.button("検索"):
     st.write("*",headings[i].text)
     st.write("└",urls[i])
 
-trans = Translator()
 
-st.subheader("記事翻訳&要約")
+# リンク先の文章を抽出して要約し翻訳
+def summarize_text_from_url(url):
+    # Fetch HTML content from the URL
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-text = st.text_area("記事内容をさっくりと翻訳します", placeholder="ここに記事内容を貼り付け")
+    # <h1>と <p>を5つまで タグを抽出
+    htag = soup.find("h1")
+    ptags = soup.find_all("p")
+    head_text = htag.get_text()
+    text = ""
+    text +=  ""
+    for ptag in ptags[:4]:
+        text += ptag.get_text() + " "
+        pipe = pipeline("summarization")
 
-trans = Translator()
+    pine = pipeline("summarization")
+
+    # 要約
+    summary = pine(text, max_length=300, min_length=50, do_sample=False)
+
+    summary_text = summary[0]['summary_text']
+    
+    # Google翻訳APIを使用して要約を日本語に翻訳
+    translator = Translator()
+    translated_head = translator.translate(head_text, dest='ja').text
+    translated_summary = translator.translate(summary_text, dest='ja').text
+
+    return translated_head ,translated_summary
+
+link = st.text_input("記事内容をさっくりと翻訳します ※/video/はNG", placeholder="ここにURLを貼り付け")
 
 if st.button("翻訳"):
     with st.spinner("翻訳中・・・"):
-        pipe = pipeline("summarization")
-        result = pipe(text, max_length=100, min_length=50)
-        text = result[0]["summary_text"]
-        result = trans.translate(text, src='en', dest='ja')
-        result.text
-
-
+        translated_head, translated_summary = summarize_text_from_url(link)
+        st.write(f"**～{translated_head}～**")
+        st.success(translated_summary)
