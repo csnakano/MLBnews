@@ -2,13 +2,14 @@
 # !pip install streamlit
 # !pip install googletrans==3.1.0a0
 # !pip install transformers
+from typing import Text
 from bs4 import BeautifulSoup
 import requests
 import time
 import streamlit as st
 from googletrans import Translator
 import torch
-from transformers import pipeline
+from transformers import pipeline, pipelines
 
 st.title(
 "MLB日本人プレイヤーまとめ")
@@ -62,6 +63,7 @@ if st.button("検索"):
     st.write("*",headings[i].text)
     st.write("└",urls[i])
 
+st.subheader("翻訳&要約")
 
 # リンク先の文章を抽出して要約し翻訳
 def summarize_text_from_url(url):
@@ -100,3 +102,4 @@ if st.button("翻訳"):
         translated_head, translated_summary = summarize_text_from_url(link)
         st.write(f"**～{translated_head}～**")
         st.success(translated_summary)
+
